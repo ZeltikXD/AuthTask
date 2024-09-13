@@ -400,3 +400,4 @@ FodyWeavers.xsd
 # Custom ignores
 AuthTask/appsettings.Development.json
 AuthTask/appsettings.Production.json
+/AuthTask/.config
