@@ -1,5 +1,7 @@
 ﻿@using System.Security.Claims
-@model IEnumerable<User>
+@using AuthTask.Shared.HtmlHelpers
+@using AuthTask.ViewModels
+@model ShowPaging<User>
 @{
     ViewData["Title"] = "Home";
 }
@@ -32,7 +34,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var user in Model)
+                @foreach (var user in Model.DisplayResult)
                 {
                     <tr>
                         <td><input data-user-id="@user.Id" class="doom_check" type="checkbox" role="checkbox" /></td>
@@ -45,6 +47,7 @@
             </tbody>
         </table>
     </div>
+    @Html.PageLinks(Model.PageInfo, (x) => Url.Action("Index", new { page = x, size = Model.PageInfo.ItemsPerPage }))
 </div>
 
 @section Scripts {

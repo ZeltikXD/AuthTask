@@ -6,7 +6,7 @@ using AuthTask.ViewModels;
 namespace AuthTask.Controllers
 {
     [Route("auth")]
-    public class AuthController(IAuthManager authManager) : Controller
+    public class AuthController(IAuthManager authManager) : BaseController
     {
         [HttpGet("login")]
         public IActionResult LogIn(string? returnUrl = null)
@@ -57,7 +57,7 @@ namespace AuthTask.Controllers
                 return View(user);
             }
             var userRes = repository.Create(user);
-            if (userRes.IsFailure) return RedirectToAction("Error", "Home", new { message = userRes.Message, statusCode = userRes.StatusCode });
+            if (userRes.IsFailure) return RedirectToError(userRes);
 
             return RedirectToAction(nameof(LogIn), new { returnUrl });
         }
@@ -76,9 +76,5 @@ namespace AuthTask.Controllers
 
             return !(isEmailInvalid && isEmailInvalid);
         }
-
-        [NonAction]
-        private RedirectResult ManageReturnUrl(string? returnUrl)
-            => !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl) ? Redirect(returnUrl) : Redirect("/");
     }
 }

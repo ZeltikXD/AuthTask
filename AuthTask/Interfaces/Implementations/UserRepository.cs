@@ -158,5 +158,18 @@ namespace AuthTask.Interfaces.Implementations
                 return Result.Failure("An internal error occurred.", StatusCodes.Status500InternalServerError);
             }
         }
+
+        Result<int> IUserRepository.GetTotalUsers()
+        {
+            try
+            {
+                return Result.Success(context.User.Count());
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while counting the total of users.");
+                return Result.Failure<int>("An internal error occurred.", StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }

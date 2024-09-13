@@ -22,5 +22,7 @@ namespace AuthTask.Interfaces
         Result<bool> CheckPassword(string username, string password);
 
         Result SetLastLogin(Guid userId);
+
+        Result<int> GetTotalUsers();
     }
 }

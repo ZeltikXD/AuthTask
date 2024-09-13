@@ -1,22 +1,24 @@
 ﻿using AuthTask.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
+using AuthTask.ViewModels;
+using AuthTask.Shared;
+using AuthTask.Models;
 
 namespace AuthTask.Controllers
 {
     [Authorize]
     [Route("users")]
-    public class UserController(IUserRepository repository) : Controller
+    public class UserController(IUserRepository repository) : BaseController
     {
         [HttpGet("~/")]
         public IActionResult Index(int page = 1, int size = 10)
         {
             var usersRes = repository.GetUsers(page, size);
-            if (usersRes.IsFailure) return RedirectToAction("Error", "Home", new { message = usersRes.Message, statusCode = usersRes.StatusCode });
-
-            return View(usersRes.Value);
+            if (usersRes.IsFailure) return RedirectToError(usersRes);
+            var modelResult = GetUsersPaging(page, size, usersRes.Value);
+            if (modelResult.IsFailure) return RedirectToError(modelResult);
+            return View(modelResult.Value);
         }
 
         [HttpPut("change-status/{id:guid}")]
@@ -40,14 +42,22 @@ namespace AuthTask.Controllers
         }
 
         [NonAction]
-        private static ObjectResult CustomResponse(int statusCode, [ActionResultObjectValue]object? value)
-            => new(value) { StatusCode = statusCode };
-
-        [NonAction]
-        private Guid GetCurrentUserId()
+        private Result<ShowPaging<User>> GetUsersPaging(int page, int size, IEnumerable<User> items)
         {
-            var strId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
-            return Guid.TryParse(strId, out var id) ? id : Guid.Empty;
+            var totalRes = repository.GetTotalUsers();
+            if (totalRes.IsFailure) 
+                return Result.Failure<ShowPaging<User>>(totalRes.Message, totalRes.StatusCode);
+
+            return Result.Success(new ShowPaging<User>
+            {
+                PageInfo = new()
+                {
+                    CurrentPage = page,
+                    TotalItems = totalRes,
+                    ItemsPerPage = size
+                },
+                DisplayResult = items
+            });
         }
     }
 }
