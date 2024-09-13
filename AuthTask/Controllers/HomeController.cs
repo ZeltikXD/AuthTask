@@ -6,9 +6,9 @@ namespace AuthTask.Controllers
     public class HomeController : Controller
     {
         [HttpGet("error")]
-        public IActionResult Error(string message)
+        public IActionResult Error(string message, int statusCode)
         {
-            return View("Error", new { Message = message });
+            return View("Error", new { Message = message, StatusCode = statusCode });
         }
     }
 }

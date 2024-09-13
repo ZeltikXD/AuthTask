@@ -14,7 +14,7 @@ namespace AuthTask.Controllers
         public IActionResult Index(int page = 1, int size = 10)
         {
             var usersRes = repository.GetUsers(page, size);
-            if (usersRes.IsFailure) return RedirectToAction("Error", "Home", new { message = usersRes.Message });
+            if (usersRes.IsFailure) return RedirectToAction("Error", "Home", new { message = usersRes.Message, statusCode = usersRes.StatusCode });
 
             return View(usersRes.Value);
         }

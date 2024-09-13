@@ -1,3 +1,32 @@
 ﻿@{
-    ViewData["Title"] = "An error has occurred.";
+    Layout = null;
 }
+
+<!DOCTYPE html>
+<html lang="en" data-bs-them="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task #4 - An error has occurred.</title>
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" rel="stylesheet" />
+    <style>
+        body,
+        html {
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body class="d-flex justify-content-center align-items-center">
+    <div class="col-md-12 text-center">
+        <h1>An error has occurred</h1>
+        <h2>Error @Model.StatusCode</h2>
+        <p>
+            @Model.Message
+        </p>
+    </div>
+</body>
+
+</html>

@@ -57,7 +57,7 @@ namespace AuthTask.Controllers
                 return View(user);
             }
             var userRes = repository.Create(user);
-            if (userRes.IsFailure) return RedirectToAction("Error", "Home", new { message = userRes.Message });
+            if (userRes.IsFailure) return RedirectToAction("Error", "Home", new { message = userRes.Message, statusCode = userRes.StatusCode });
 
             return RedirectToAction(nameof(LogIn), new { returnUrl });
         }
