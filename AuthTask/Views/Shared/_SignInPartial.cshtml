@@ -1,0 +1,26 @@
+﻿@using AuthTask.Interfaces
+@using System.Security.Claims
+@inject IAuthManager authManager
+
+@if (authManager.IsSignedIn())
+{
+    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+            <a class="nav-link" asp-action="LogOut" asp-controller="Auth">Log Out</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link"><strong>Hello @User.FindFirst(ClaimTypes.GivenName)?.Value!</strong></a>
+        </li>
+    </ul>
+}
+else
+{
+    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+            <a class="nav-link" asp-action="Register" asp-controller="Auth">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-action="LogIn" asp-controller="Auth">Log In</a>
+        </li>
+    </ul>
+}

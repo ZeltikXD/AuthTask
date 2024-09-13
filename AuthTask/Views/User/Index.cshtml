@@ -1,0 +1,125 @@
+﻿@using System.Security.Claims
+@model IEnumerable<User>
+@{
+    ViewData["Title"] = "Home";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/sweetalert2.min.css" />
+}
+
+<div class="container mt-5">
+    <!-- Toolbar -->
+    <div class="d-flex justify-content-between mb-3">
+        <div>
+            <button id="block_users" class="btn btn-secondary"><i class="bi bi-lock-fill"></i></button>
+            <button id="unblock_users" class="btn btn-secondary"><i class="bi bi-unlock-fill"></i></button>
+            <button id="delete_users" class="btn btn-danger"><i class="bi bi-trash-fill"></i></button>
+        </div>
+    </div>
+
+    <!-- Centered Table -->
+    <div class="table-responsive d-flex justify-content-center">
+        <table class="table table-bordered table-striped text-center">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Last login</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td><input data-user-id="@user.Id" class="doom_check" type="checkbox" role="checkbox" /></td>
+                        <td>@user.Name</td>
+                        <td>@user.Email</td>
+                        <td>@(user.LastLoginTime?.ToString("R") ?? "Never logged in")</td>
+                        <td>@(user.IsActive ? "Active" : "Blocked")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/sweetalert2.all.min.js"></script>
+    <script src="~/js/test.js" asp-append-version="true"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUserId = '@User.FindFirst(ClaimTypes.NameIdentifier)?.Value';
+            document.getElementById('block_users').addEventListener('click', (ev) => {
+                block_unblockCommon('false', ev.target);
+            });
+
+            document.getElementById('unblock_users').addEventListener('click', (ev) => {
+                block_unblockCommon('true', ev.target);
+            });
+
+            document.getElementById('delete_users').addEventListener('click', (ev) => {
+                ev.target.disabled = true;
+                const relativeUri = '/users/delete/{id}';
+                const userids = getUserIds();
+                if (userids.length === 0) {
+                    ev.target.disabled = false;
+                    return;
+                }
+                const callback = (obj) => relativeUri.replace('{id}', obj.id);
+                forEachId(userids, callback, 'DELETE').then((res) => { if (res) location.reload() });
+            });
+
+            function block_unblockCommon(status, element) {
+                element.disabled = true;
+                const relativeUri = '/users/change-status/{id}?newStatus='+status;
+                const userids = getUserIds();
+                if (userids.length === 0) {
+                    element.disabled = false;
+                    return;
+                }
+                const callback = (obj) => relativeUri.replace('{id}', obj.id);
+                forEachId(userids, callback, 'PUT').then((res) => { if (res) location.reload() });
+            }
+
+            function getUserIds() {
+                let userids = Array.from(document.getElementsByClassName('doom_check')).filter(x => x.checked).map(x => { return { id: x.getAttribute('data-user-id') } });
+                if (userids.includes(currentUserId)) {
+                    userids = userids.filter(x => x.id !== currentUserId);
+                    userids.push(currentUserId);
+                }
+                return userids;
+            }
+
+            async function forEachId(userids, callback, method) {
+                const isAllRight = [];
+                for (const obj of userids){
+                    const res = await sendRequest({ url: callback(obj), method: method });
+                    isAllRight.push(res);
+                }
+                return isAllRight.every(x => x);
+            }
+
+            async function sendRequest({ url, method }) {
+                const response = await fetch(url, { method: method });
+                if (response.redirected) {
+                    location.href = response.url;
+                    return false;
+                } else if (!response.ok) {
+                    const resjson = await response.json();
+                    Swal.fire({
+                        title: 'Oops! Something went wrong',
+                        text: `${resjson.message} - Code: ${response.status}`,
+                        icon: 'error',
+                        confirmButtonText: 'Understood'
+                    }).then(() => location.reload());
+                    return false;
+                }
+                return true;
+            }
+        });
+    </script>
+}

@@ -1,0 +1,67 @@
+﻿@using AuthTask.ViewModels
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@model UserLogin
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<section class="vh-100">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                <div class="card" style="border-radius: 1rem;">
+                    <div class="card-body p-5 text-center">
+
+                        <form class="mb-md-5 mt-md-4 pb-5" asp-action="LogIn" asp-route-returnUrl="@ViewBag.ReturnUrl" method="post">
+
+                            <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
+                            <p class="mb-5">Please enter your email and password!</p>
+
+                            <div data-mdb-input-init class="form-outline form-white mb-4">
+                                <input asp-for="Email" class="form-control form-control-lg" />
+                                <label class="form-label" asp-for="Email">Email</label>
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+
+                            <div data-mdb-input-init class="form-outline form-white mb-4">
+                                <input asp-for="Password" class="form-control form-control-lg" />
+                                <label class="form-label" asp-for="Password">Password</label>
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+
+                            <button data-mdb-button-init data-mdb-ripple-init class="btn btn-secondary btn-lg px-5" type="submit">Sign In</button>
+                        </form>
+
+                        @if (ModelState.Any(x => x.Key.Equals(string.Empty)))
+                        {
+                            <span class="text-danger field-validation-error" style="font-size: medium">
+                                <ul>
+                                    @foreach (var state in ModelState[string.Empty]?.Errors ?? [])
+                                    {
+                                        <li>@state.ErrorMessage</li>
+                                    }
+                                </ul>
+                            </span>
+
+                            <br />
+                        }
+
+                        <div>
+                            <p class="mb-0">
+                                Don't have an account? <a asp-action="Register" asp-route-returnUrl="@ViewBag.ReturnUrl" class="fw-bold">Sign Up</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+@functions{
+    private ModelStateDictionary ModelState => ViewData.ModelState;
+}
