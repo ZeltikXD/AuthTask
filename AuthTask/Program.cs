@@ -3,6 +3,7 @@ using AuthTask.Interfaces;
 using AuthTask.Interfaces.Implementations;
 using AuthTask.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -56,6 +57,12 @@ namespace AuthTask
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            if (app.Environment.IsProduction())
+                app.UseForwardedHeaders(new()
+                {
+                    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+                });
 
             app.UseStatusCodePages(context => {
                 var request = context.HttpContext.Request;
