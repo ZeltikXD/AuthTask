@@ -16,7 +16,7 @@ namespace AuthTask.Data
                 .Property(x => x.IsActive).HasDefaultValue(true);
 
             modelBuilder.Entity<User>()
-                .HasIndex(x => x.Id);
+                .HasIndex(x => x.Email);
 
             modelBuilder.Entity<User>()
                 .Property(x => x.RegistrationTime)
